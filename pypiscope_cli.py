@@ -37,20 +37,6 @@ N_STEPS = 2 ** ADC_RES
 # Output pins
 LED = 31
 
-# Input pins
-RNG0 = 11
-RNG1 = 13
-RNG2 = 15
-MODD = 7
-RDDY = 8
-PWWR = 10
-
-
-def get_gpio_status_bits():
-    gpio_status_bits = [gpio.input(PWWR), gpio.input(RDDY), gpio.input(MODD), gpio.input(RNG2), gpio.input(RNG1),
-                        gpio.input(RNG0)]
-    return ''.join([str(int(elem)) for elem in gpio_status_bits])
-
 
 def gpio_setup():
     # turn off warnings
@@ -60,13 +46,6 @@ def gpio_setup():
     gpio.setmode(gpio.BOARD)
 
     gpio.setup(LED, gpio.OUT)
-
-    gpio.setup(PWWR, gpio.IN)
-    gpio.setup(RDDY, gpio.IN)
-    gpio.setup(MODD, gpio.IN)
-    gpio.setup(RNG2, gpio.IN)
-    gpio.setup(RNG1, gpio.IN)
-    gpio.setup(RNG0, gpio.IN)
 
 
 def start_server(host, port):
@@ -87,15 +66,13 @@ def start_server(host, port):
     try:
         while True:
             topic = '10001'  # just a number for identification
-            # check status bits
-            stat_bits = get_gpio_status_bits()
             # read SPI device 0,0 channel 0 single ended
             resp = spi.xfer([6, 0, 0])
             # check time
             current_time = datetime.datetime.now().strftime('%Y-%m-%d@%H:%M:%S.%f')
 
             value = (resp[1] << 8) + resp[2]
-            messagedata = current_time + ' ' + stat_bits + ' ' + str(value)
+            messagedata = current_time + ' ' + str(value)
             sock.send_string("{} {}".format(topic, messagedata))
             print("{} {}".format(topic, messagedata))
 
