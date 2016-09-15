@@ -67,11 +67,10 @@ def start_server(host, port):
         while True:
             topic = '10001'  # just a number for identification
             # read SPI device 0,0 channel 0 single ended
-            resp = spi.xfer([6, 0, 0])
+            resp = spi.xfer([0, 0])
             # check time
             current_time = datetime.datetime.now().strftime('%Y-%m-%d@%H:%M:%S.%f')
-
-            value = (resp[1] << 8) + resp[2]
+            value = ((resp[0] << 8) + resp[1]) >> 1
             messagedata = current_time + ' ' + str(value)
             sock.send_string("{} {}".format(topic, messagedata))
             print("{} {}".format(topic, messagedata))
