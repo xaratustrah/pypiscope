@@ -35,7 +35,7 @@ N_STEPS = 2 ** ADC_RES
 # Assigning GPIO pin numbers
 
 # Output pins
-LED = 31
+LED = 29
 
 
 def gpio_setup():
