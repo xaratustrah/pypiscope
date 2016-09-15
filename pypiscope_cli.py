@@ -97,9 +97,9 @@ def start_client(host, port):
 
         for update_nbr in range(5):
             string = sock.recv().decode("utf-8")
-            topic, time, stat_bits, value = string.split()
+            topic, time, value = string.split()
             # value = float(value) * CALIBRATION / N_STEPS
-            print(time, stat_bits, value)
+            print(time, value)
 
     except(ConnectionRefusedError):
         print('Server not running. Aborting...')
