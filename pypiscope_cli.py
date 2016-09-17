@@ -8,7 +8,7 @@ Xaratustrah@GitHUB
 """
 
 import datetime, time
-import random
+import msgpack
 import argparse
 import zmq
 import os
@@ -64,11 +64,10 @@ def start_server(host, port):
         while True:
             # check time
             # current_time = datetime.datetime.now().strftime('%Y-%m-%d@%H:%M:%S.%f')
-            value = get_adc_data()
+            value = get_adc_data(nsample=128)
             # messagedata = current_time + ' ' + str(value)
-            messagedata = str(value)
+            messagedata = msgpack.packb(value)
             sock.send_string("{} {}".format(topic, messagedata))
-            # sock.send_string("{}".format(messagedata))
             print("{} {}".format(topic, messagedata))
             # print("{}".format(messagedata))
 
@@ -107,7 +106,7 @@ def start_client(host, port):
             string = sock.recv().decode("utf-8")
             topic, value = string.split()
             # value = float(value) * CALIBRATION / N_STEPS
-            print(value)
+            print(msgpack.unpackb(value))
 
     except(ConnectionRefusedError):
         print('Server not running. Aborting...')
