@@ -23,7 +23,7 @@ if os.name == 'posix' and os.uname().machine == 'armv7l':
                 You can achieve this by using 'sudo' to run your script""")
 
 # sleep time in seconds
-SLEEP_TIME = 0.2
+SLEEP_TIME = 0.1
 
 # calibration constant
 CALIBRATION = 3.3
@@ -69,7 +69,7 @@ def start_server(host, port):
             # messagedata = msgpack.packb(value)
             messagedata = str(value)
             sock.send_string("{} {}".format(topic, messagedata))
-            print("{} {}".format(topic, messagedata))
+            #print("{} {}".format(topic, messagedata))
 
             led_state = not led_state
             gpio.output(LED, led_state)
@@ -102,13 +102,14 @@ def start_client(host, port):
         topic_filter = '5'
         sock.setsockopt_string(zmq.SUBSCRIBE, topic_filter)
 
-        for update_nbr in range(10):
-            #print(msgpack.unpackb(sock.recv()))
+        #for update_nbr in range(10):
+        while(1):
+            # print(msgpack.unpackb(sock.recv()))
             # print(sock.recv())
             string = sock.recv().decode("utf-8")
-            topic, value = string.split()
+            # topic, value = string.split()
             # value = float(value) * CALIBRATION / N_STEPS
-            print(value)
+            print(string)
 
     except(ConnectionRefusedError):
         print('Server not running. Aborting...')
