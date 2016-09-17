@@ -64,16 +64,19 @@ def start_server(host, port):
 
     print('Server started. ctrl-c to abort.\n')
     try:
+        topic = '10001'  # just a number for identification
         while True:
-            topic = '10001'  # just a number for identification
             # read SPI device 0,0 channel 0 single ended
             resp = spi.xfer([0, 0])
             # check time
-            current_time = datetime.datetime.now().strftime('%Y-%m-%d@%H:%M:%S.%f')
+            #current_time = datetime.datetime.now().strftime('%Y-%m-%d@%H:%M:%S.%f')
             value = ((resp[0] << 8) + resp[1]) >> 1
-            messagedata = current_time + ' ' + str(value)
-            sock.send_string("{} {}".format(topic, messagedata))
-            print("{} {}".format(topic, messagedata))
+            #messagedata = current_time + ' ' + str(value)
+            messagedata = str(value)
+            #sock.send_string("{} {}".format(topic, messagedata))
+            sock.send_string("{}".format(messagedata))
+            #print("{} {}".format(topic, messagedata))
+            print("{}".format(messagedata))
 
             led_state = not led_state
             gpio.output(LED, led_state)
@@ -97,9 +100,10 @@ def start_client(host, port):
 
         for update_nbr in range(5):
             string = sock.recv().decode("utf-8")
-            topic, time, value = string.split()
+            #topic, time, value = string.split()
+            value = string.split()
             # value = float(value) * CALIBRATION / N_STEPS
-            print(time, value)
+            print(value)
 
     except(ConnectionRefusedError):
         print('Server not running. Aborting...')
