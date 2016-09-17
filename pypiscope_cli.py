@@ -49,10 +49,6 @@ def gpio_setup():
 
 
 def start_server(host, port):
-    # setup SPI
-    spi = spidev.SpiDev()
-    spi.open(0, 0)
-
     # setup GPIO
     gpio_setup()
     led_state = False
@@ -66,17 +62,15 @@ def start_server(host, port):
     try:
         topic = '5'  # just a number for identification
         while True:
-            # read SPI device 0,0 channel 0 single ended
-            resp = spi.xfer([0, 0])
             # check time
-            #current_time = datetime.datetime.now().strftime('%Y-%m-%d@%H:%M:%S.%f')
-            value = ((resp[0] << 8) + resp[1]) >> 1
-            #messagedata = current_time + ' ' + str(value)
+            # current_time = datetime.datetime.now().strftime('%Y-%m-%d@%H:%M:%S.%f')
+            value = get_adc_data()
+            # messagedata = current_time + ' ' + str(value)
             messagedata = str(value)
             sock.send_string("{} {}".format(topic, messagedata))
-            #sock.send_string("{}".format(messagedata))
+            # sock.send_string("{}".format(messagedata))
             print("{} {}".format(topic, messagedata))
-            #print("{}".format(messagedata))
+            # print("{}".format(messagedata))
 
             led_state = not led_state
             gpio.output(LED, led_state)
@@ -86,7 +80,18 @@ def start_server(host, port):
     except(EOFError, KeyboardInterrupt):
         print('\nUser input cancelled. Aborting...')
         gpio.cleanup()
-        spi.close()
+
+
+def get_adc_data(nsample=1):
+    # setup SPI
+    spi = spidev.SpiDev()
+    spi.open(0, 0)
+    a = []
+    for i in range(nsample):
+        resp = spi.xfer([0, 0])
+        a.append(((resp[0] << 8) + resp[1]) >> 1)
+    spi.close()
+    return a
 
 
 def start_client(host, port):
@@ -136,7 +141,6 @@ def main():
         port = args.port
 
     if args.server:
-
         start_server(host, port)
 
     elif args.host:
