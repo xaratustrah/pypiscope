@@ -64,7 +64,7 @@ def start_server(host, port):
 
     print('Server started. ctrl-c to abort.\n')
     try:
-        topic = '10001'  # just a number for identification
+        topic = '5'  # just a number for identification
         while True:
             # read SPI device 0,0 channel 0 single ended
             resp = spi.xfer([0, 0])
@@ -73,10 +73,10 @@ def start_server(host, port):
             value = ((resp[0] << 8) + resp[1]) >> 1
             #messagedata = current_time + ' ' + str(value)
             messagedata = str(value)
-            #sock.send_string("{} {}".format(topic, messagedata))
-            sock.send_string("{}".format(messagedata))
-            #print("{} {}".format(topic, messagedata))
-            print("{}".format(messagedata))
+            sock.send_string("{} {}".format(topic, messagedata))
+            #sock.send_string("{}".format(messagedata))
+            print("{} {}".format(topic, messagedata))
+            #print("{}".format(messagedata))
 
             led_state = not led_state
             gpio.output(LED, led_state)
@@ -95,13 +95,12 @@ def start_client(host, port):
     try:
         sock = context.socket(zmq.SUB)
         sock.connect("tcp://{}:{}".format(host, port))
-        topic_filter = '10001'
+        topic_filter = '5'
         sock.setsockopt_string(zmq.SUBSCRIBE, topic_filter)
 
         for update_nbr in range(5):
             string = sock.recv().decode("utf-8")
-            #topic, time, value = string.split()
-            value = string.split()
+            topic, value = string.split()
             # value = float(value) * CALIBRATION / N_STEPS
             print(value)
 
