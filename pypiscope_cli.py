@@ -66,10 +66,10 @@ def start_server(host, port):
             # current_time = datetime.datetime.now().strftime('%Y-%m-%d@%H:%M:%S.%f')
             value = get_adc_data(nsample=128)
             # messagedata = current_time + ' ' + str(value)
-            messagedata = msgpack.packb(value)
+            # messagedata = msgpack.packb(value)
+            messagedata = str(value)
             sock.send_string("{} {}".format(topic, messagedata))
             print("{} {}".format(topic, messagedata))
-            # print("{}".format(messagedata))
 
             led_state = not led_state
             gpio.output(LED, led_state)
@@ -102,11 +102,13 @@ def start_client(host, port):
         topic_filter = '5'
         sock.setsockopt_string(zmq.SUBSCRIBE, topic_filter)
 
-        for update_nbr in range(5):
+        for update_nbr in range(10):
+            #print(msgpack.unpackb(sock.recv()))
+            # print(sock.recv())
             string = sock.recv().decode("utf-8")
             topic, value = string.split()
             # value = float(value) * CALIBRATION / N_STEPS
-            print(msgpack.unpackb(value))
+            print(value)
 
     except(ConnectionRefusedError):
         print('Server not running. Aborting...')
